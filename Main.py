@@ -6,13 +6,14 @@ from tkinter.filedialog import askdirectory as askDirectory
 
 import datetime
 
+from pathlib import Path
 from threading import Thread
 
-from pytube.cli import on_progress
 from pytube import YouTube as Youtube
 
 from PIL import ImageTk,Image
 
+#custom module
 from formatting import format_views
 from image import *
 
@@ -21,27 +22,45 @@ from image import *
     Created by Aghnat HS
     Using Python,Tkinter and Pytube.
 """
+#about
+AUTHOR = "Aghnat HS"
+VERSION = "1.2"
 #default download directory
-DIRECTORY = "downloaded_videos"
+#DIRECTORY = "downloaded_videos"
+DIRECTORY = os.path.dirname(os.path.abspath('Main.py')) + r"\downloaded_videos"
 THUMBNAIL_IMG = "tmp_thumbnail/tmp1.png"
 
 class Youtube(Youtube):
     
     def on_finished_downloading(self,stream,file_path):
-        MessageBox.showinfo("Finished",f"Download is Finished\nLocation:\n{file_path}")
+        if stream.type != "audio":
+            MessageBox.showinfo("Finished",f"Download is Finished\nLocation:\n{file_path}")
+        else:
+            path = Path(file_path)
+            path = path.rename(path.with_suffix('.mp3'))
+            MessageBox.showinfo("Finished",f"Download is Finished\nLocation:\n{path}")
 
-    def proceed_download(self,_resolution):
-        def callback(_resolution):
+    def proceed_download(self,arg):
+        def callback(arg):
             global DIRECTORY
-            stream = self.streams.filter(progressive=True,res=_resolution)
-            MessageBox.showinfo("Downloading","Your video is downloading right now.\nPlease dont close or exit application")
-            stream.first().download(DIRECTORY)
+            #check if user want to download a video or an audio
+            if arg!="mp3":
+                #download video version
+                stream = self.streams.filter(progressive=True,res=arg)
+                MessageBox.showinfo("Downloading","Your video is downloading right now.\nPlease dont close or exit application")
+                stream.first().download(DIRECTORY)
+            else:
+                #download audio version only
+                stream = self.streams.filter(only_audio=True,mime_type="audio/mp4")
+                MessageBox.showinfo("Downloading","Your mp3 is downloading right now.\nPlease dont close or exit application")
+                stream.first().download(DIRECTORY)
 
-        Thread(target = callback ,args=(_resolution,)).start()
+        Thread(target = callback ,args=(arg,)).start()
 
     def get_resolution(self): 
         _resolution = [stream.resolution for stream in self.streams.filter(progressive=True)]
-        return tuple(_resolution)
+        _resolution.insert(0,"mp3")
+        return _resolution
 
     def get_info(self):
         _title = self.title
@@ -50,11 +69,11 @@ class Youtube(Youtube):
         _views = str(self.views)
         _rating = str("{:.2f}".format(self.rating))
         return {
-                    "title" : _title,
+                    "title"  : _title,
                     "author" : _author,
                     "length" : _length,
-                    "views" : _views,
-                    "rating": _rating
+                    "views"  : _views,
+                    "rating" : _rating
                }
 
 class App():
@@ -64,7 +83,7 @@ class App():
         self.app = tk.Tk()
         self.app.geometry(f"{width}x{height}")
         self.app.resizable(0,0)
-        self.app.title("Youtube Downloader by Aghnat HS")
+        self.app.title(f"Youtube Downloader by Aghnat HS ({VERSION})")
         #font
         self.fontTitle = Font(family="Helvetica",size=15,weight="bold")
         #create button layout for main window
@@ -96,11 +115,13 @@ class App():
         window_heigth = 400
         #main function
         def callback():
+            global DIRECTORY
             try:
                 #instantianting Youtube Object
                 youtube = Youtube(link)
                 youtube.register_on_complete_callback(youtube.on_finished_downloading)
-            except :
+            except Exception as er:
+                print (er)
                 MessageBox.showwarning("Error","Something went wrong,please try again")
             else:
                 self.download_window = tk.Toplevel(self.app)
@@ -126,12 +147,15 @@ class App():
                 video_download = tk.Button(self.download_window,text="Download",bg="green",fg="white",font=self.fontTitle,relief=tk.RIDGE,command=lambda:youtube.proceed_download(self.res.get()))
                 video_download.place(relx=0.5,rely=0.75,anchor=tk.CENTER)
 
-                res_list = youtube.get_resolution()
+                res_list = tuple(youtube.get_resolution())
                 self.res = tk.StringVar()
                 self.res.set(res_list[len(res_list)-1])
                 video_res_option = tk.OptionMenu(self.download_window, self.res, *res_list)
                 video_res_option.config(font=self.fontTitle,width=5,relief=tk.RIDGE)
                 video_res_option.place(relx=0.72,rely=0.75,anchor=tk.CENTER) 
+                #create another gui
+                self.dir_label = tk.Label(self.download_window,text=f"Download Directory\n{DIRECTORY}",wraplength=window_width-5)
+                self.dir_label.place(relx=0.5,rely=0.85,anchor=tk.CENTER) 
             
         Thread(target = callback ,args=()).start()
 
@@ -170,6 +194,7 @@ class App():
     def select_directory(self):
         global DIRECTORY
         DIRECTORY = askDirectory(title="Select Directory",initialdir=DIRECTORY)
+        self.dir_label.config(text=f"Download Directory\n{DIRECTORY}")
         self.download_window.focus()
         
 app = App(500,150)
