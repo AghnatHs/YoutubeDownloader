@@ -3,6 +3,7 @@ Youtube Downloader created with Python .
 <br>libraries used : Tkinter,Pytube3
 <br>Feature : <br>-Simple GUI app
               <br>-Download up to 720p 
+              <br>-Download Video or Audio Only.
               <br>-Easy to use
 <br>
 <b>Version Changelog</b>
