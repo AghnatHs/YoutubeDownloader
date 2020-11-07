@@ -14,4 +14,6 @@ Youtube Downloader created with Python .
   <dd>Upgrading pytube version (older version of pytube caused bug)</dd>
   <dt>1.2-------01/11/2020</dt>
   <dd>Adding support for downloading mp3 file,and other peripheral gui</dd>
+  <dt>1.2.1-------07/11/2020</dt>
+  <dd>Fixed Bugs</dd>
 </dl>
