@@ -24,10 +24,9 @@ from image import *
 """
 #about
 AUTHOR = "Aghnat HS"
-VERSION = "1.2"
+VERSION = "1.2.1"
 #default download directory
-#DIRECTORY = "downloaded_videos"
-DIRECTORY = os.path.dirname(os.path.abspath('Main.py')) + r"\downloaded_videos"
+DIRECTORY = os.path.dirname(os.path.abspath('Main.py'))+"\downloaded_videos"
 THUMBNAIL_IMG = "tmp_thumbnail/tmp1.png"
 
 class Youtube(Youtube):
@@ -37,7 +36,8 @@ class Youtube(Youtube):
             MessageBox.showinfo("Finished",f"Download is Finished\nLocation:\n{file_path}")
         else:
             path = Path(file_path)
-            path = path.rename(path.with_suffix('.mp3'))
+            new_path = str(path.parent) + "/" + path.stem + ".mp3"
+            path=path.rename(new_path)
             MessageBox.showinfo("Finished",f"Download is Finished\nLocation:\n{path}")
 
     def proceed_download(self,arg):
@@ -47,13 +47,15 @@ class Youtube(Youtube):
             if arg!="mp3":
                 #download video version
                 stream = self.streams.filter(progressive=True,res=arg)
-                MessageBox.showinfo("Downloading","Your video is downloading right now.\nPlease dont close or exit application")
+                MessageBox.showinfo("Downloading Video","Your video is downloading right now.\nPlease dont close or exit application")
                 stream.first().download(DIRECTORY)
             else:
                 #download audio version only
                 stream = self.streams.filter(only_audio=True,mime_type="audio/mp4")
-                MessageBox.showinfo("Downloading","Your mp3 is downloading right now.\nPlease dont close or exit application")
-                stream.first().download(DIRECTORY)
+                MessageBox.showinfo("Downloading Audio","Your mp3 is downloading right now.\nPlease dont close or exit application")
+
+                audio_file_name = self.title + " (Audio Only)"
+                stream.first().download(DIRECTORY,audio_file_name)
 
         Thread(target = callback ,args=(arg,)).start()
 
