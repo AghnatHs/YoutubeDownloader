@@ -14,7 +14,7 @@ from pytube import YouTube as Youtube
 from PIL import ImageTk,Image
 
 #custom module
-from formatting import format_views
+from formatting import *
 from image import *
 
 """
@@ -24,7 +24,7 @@ from image import *
 """
 #about
 AUTHOR = "Aghnat HS"
-VERSION = "1.2.1"
+VERSION = "1.2.2"
 #default download directory
 DIRECTORY = os.path.dirname(os.path.abspath('Main.py'))+"\downloaded_videos"
 THUMBNAIL_IMG = "tmp_thumbnail/tmp1.png"
@@ -131,8 +131,9 @@ class App():
                 self.download_window.title("Download")
                 self.download_window.geometry(f"{window_width}x{window_heigth}")
                 self.download_window.focus()
+                self.download_window.grab_set()
                 #create thumbnail
-                image_download(youtube.thumbnail_url)
+                get_thumbnail(youtube.thumbnail_url)
                 self.thumbnail =ImageTk.PhotoImage(Image.open(THUMBNAIL_IMG).resize((canvas_width,canvas_height)))
                 #------CREATE GUI
                 #create the thumbnail canvas
@@ -157,7 +158,7 @@ class App():
                 video_res_option.place(relx=0.72,rely=0.75,anchor=tk.CENTER) 
                 #create another gui
                 self.dir_label = tk.Label(self.download_window,text=f"Download Directory\n{DIRECTORY}",wraplength=window_width-5)
-                self.dir_label.place(relx=0.5,rely=0.85,anchor=tk.CENTER) 
+                self.dir_label.place(relx=0.5,rely=0.87,anchor=tk.CENTER) 
             
         Thread(target = callback ,args=()).start()
 
@@ -195,7 +196,12 @@ class App():
 
     def select_directory(self):
         global DIRECTORY
+        last_dir = DIRECTORY
         DIRECTORY = askDirectory(title="Select Directory",initialdir=DIRECTORY)
+
+        if DIRECTORY == "" :
+            DIRECTORY = last_dir
+        
         self.dir_label.config(text=f"Download Directory\n{DIRECTORY}")
         self.download_window.focus()
         
