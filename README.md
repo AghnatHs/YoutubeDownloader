@@ -6,8 +6,8 @@ Youtube Downloader created with Python .
               <br>-Download Video or Audio Only.
               <br>-Easy to use
 <br>
-<b>Version Changelog</b>
 <dl>
+  <b>Version Changelog</b>
   <dt>1.0 (OBSELETE)</dt>
   <dd>First Upload</dd>
   <dt>1.1-------27/11/2020 (OBSELETE)</dt>
