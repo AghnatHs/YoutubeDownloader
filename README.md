@@ -16,4 +16,6 @@ Youtube Downloader created with Python .
   <dd>Adding support for downloading mp3 file,and other peripheral gui</dd>
   <dt>1.2.1-------07/11/2020</dt>
   <dd>Fixed Bugs</dd>
+  <dt>1.2.2-------13/11/2020</dt>
+  <dd>Fixed directory selection<dd>
 </dl>
